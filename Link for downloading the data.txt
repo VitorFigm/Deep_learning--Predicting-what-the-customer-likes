@@ -1,0 +1,7 @@
+The data is too big to be in gitHub
+
+He is the link:
+
+https://www.kaggle.com/snap/amazon-fine-food-reviews
+
+Download the Reviews.csv file
