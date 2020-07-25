@@ -1,6 +1,6 @@
 # Predicting what costumer likes
 
-Based on an Amazon food review database, for each reviewer, i will randomly erase 5 products that he gave 5 stars, and the model will try to predict what products were those.
+Using Amazon food review database, for each reviewer, i will randomly erase 5 products that costumer gave 5 stars, and the model will try to predict what products were those.
 
 ## Recommendation System
 
