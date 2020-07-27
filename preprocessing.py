@@ -29,7 +29,7 @@ reviews.index = range(0,reviews.shape[0])
 #pivoting
 
 pivot = reviews.pivot_table(index='UserId',columns='ProductId',dropna=False,aggfunc=np.amax).fillna(0)
-
+del reviews
 
 #deleting User with fell buyings
 arr=pivot.mean(axis=1)*pivot.shape[1]
