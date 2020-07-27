@@ -1,7 +1,6 @@
 # %%
 import pandas as pd
 import numpy as np
-from random import sample
 
 
 # %%
@@ -14,61 +13,73 @@ pivot = pivot.drop('UserId',1)
 
 # %%
 ##5 products that the user liked(score 5) will be selected randomly and will be hidden, the AI will need to predict what products were those.
-Y = pivot.copy()
-Y[Y==1]=0
-X = pivot.copy()
-for i in X.index:
-    index = X.loc[i][X.loc[i]==1].index
-    rd = sample( range(0,index.shape[0]), 5)
-    
-    for j in rd:
-        X.loc[i][   index[ j ]   ] = 0
-        Y.loc[i][   index[ j ]   ] = 1
-
-
-# %%
-#split
+from random import sample
 from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X,Y,test_size=0.1,random_state=0)
 
+def random_selection(pivot):
+    Y = pivot.copy()
+    Y[Y==1]=0
+    X = pivot.copy()
+    for i in X.index:
+        index = X.loc[i][X.loc[i]==1].index
+        rd = sample( range(0,index.shape[0]), 5)
+        
+        for j in rd:
+            X.loc[i][   index[ j ]   ] = 0
+            Y.loc[i][   index[ j ]   ] = 1
+    #split
+    X_train, X_test, y_train, y_test = train_test_split(X,Y,test_size=0.1,random_state=0)
+    return X_train, X_test, y_train, y_test, X.shape[1]
+
+
+X_train, X_test, y_train, y_test, X_shape = random_selection(pivot)
 
 # %%
 #keras
 from keras.models import Sequential
 from keras.layers import Dense
+def keras_model(X_shape,X_train,X_test,y_train):
+    model = Sequential()
+    model.add(  Dense(X_shape,activation='relu',input_dim=X_shape) )
+    model.add(  Dense(X_shape,activation='relu') )
+    model.add(  Dense(X_shape,activation='sigmoid') )
 
-model = Sequential()
-model.add(  Dense(X.shape[1],activation='relu',input_dim=X.shape[1]) )
-model.add(  Dense(X.shape[1],activation='relu') )
-model.add(  Dense(X.shape[1],activation='sigmoid') )
-
-model.compile(optimizer='adam', loss='binary_crossentropy')
+    model.compile(optimizer='adam', loss='binary_crossentropy')
 
 
-model.fit(X_train, y_train, batch_size=10, epochs=10) 
+    model.fit(X_train, y_train, batch_size=10, epochs=10) 
 
-model.save('model_recommendation.h5')
+    model.save('model_recommendation.h5')
+    
+    pred = model.predict(X_test)
+    pred = pred.round(0)
+    return model, pred
+
+model, pred = keras_model(X_shape,X_train,X_test,y_train)
+
+
 
 # %%
-##metricssssss
-pred = model.predict(X_test)
-pred = pred.round(0)
-
+##metrics
 from sklearn.metrics import accuracy_score
-#Proportion of the users that voted 5 in all the recommendations
-score_user = accuracy_score(y_test,pred)
+def measure(y_test,pred):
+    #Proportion of the users that voted 5 in all the recommendations
+    score_user = accuracy_score(y_test,pred)
 
-#Proportion of how many recommendations had score 5
-score_products = accuracy_score(   y_test.values.flatten()  ,  pred.flatten()     )
+    #Proportion of how many recommendations had score 5
+    score_products = accuracy_score(   y_test.values.flatten()  ,  pred.flatten()     )
 
-print(f'Proportion of how many recomendations had score 5:  {score_products}')
-print(f'Proportion of the users that voted 5 in all the recomendations:      {score_user}')
+    print(f'Proportion of how many recomendations had score 5:  {score_products}')
+    print(f'Proportion of the users that voted 5 in all the recomendations:      {score_user}')
 
-from sklearn.metrics import confusion_matrix
+    from sklearn.metrics import confusion_matrix
 
-#visualizing the hits and misses 
-matrix_products =  confusion_matrix(y_test.values.flatten()  ,  pred.flatten())
+    #visualizing the hits and misses 
+    matrix_products =  confusion_matrix(y_test.values.flatten()  ,  pred.flatten())
 
+    return{'score_user':score_user,'score_products':score_products,'matrix_products':matrix_products}
+
+score = measure(y_test,pred)
 
 
 
