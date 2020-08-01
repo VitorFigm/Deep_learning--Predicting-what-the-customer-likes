@@ -62,36 +62,30 @@ model, pred = keras_model(X_shape,X_train,X_test,y_train)
 # %%
 ##metrics
 
-def metric_right_recommends(recommendations,Y_real):
-    count_rights = 0;  #counts many recommendeds was rated 5
-    count_all = 0; ##counts how many items was recommended
-    for row1,row2 in zip(recommendations,Y_real):   #iterate through rows
-        for recommended,real in zip(row1,row2): #iterate trough cells in each columns
-            if(recommended==1): #see if it recommended a item
-                if(recommended==real): count_rights+=1    #see if the recommended item was rated 5
-                count_all+=1 
-    return count_rights/count_all
 
-
-
-from sklearn.metrics import accuracy_score
 def measure(y_test,pred):
-    #Proportion of the users that voted 5 in all the recommendations
-    score_user = accuracy_score(y_test,pred)
-
-    #Proportion of how many recommendations had score 5
-    score_products = metric_right_recommends(pred,y_test.values)
-    print(f'Proportion of how many recomendations had score 5:  {score_products}')
-    print(f'Proportion of the users that voted 5 in all the recomendations:      {score_user}')
 
     from sklearn.metrics import confusion_matrix
 
     #visualizing the hits and misses 
     matrix_products =  confusion_matrix(y_test.values.flatten()  ,  pred.flatten())
+    counts_right = matrix_products[1][1]  ##how many recommendations received 5 stars
+    counts_wrong = matrix_products[0][1]  ##how many didn't
+
+    from sklearn.metrics import accuracy_score
+    #Proportion of the users that voted 5 in all the recommendations
+    score_user = accuracy_score(y_test,pred)
+
+    #Proportion of recommendations that received 5 stars 
+    score_products = counts_right/(counts_right+counts_wrong)
+
+    print(f'Proportion of how many recomendations had score 5:  {score_products}')
+    print(f'Proportion of the users that voted 5 in all the recomendations:      {score_user}')
 
     return{'score_user':score_user,'score_products':score_products,'matrix_products':matrix_products}
 
 score = measure(y_test,pred)
+
 
 
 
