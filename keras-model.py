@@ -61,14 +61,26 @@ model, pred = keras_model(X_shape,X_train,X_test,y_train)
 
 # %%
 ##metrics
+
+def metric_right_recommends(recommendations,Y_real):
+    count_rights = 0;  #counts many recommendeds was rated 5
+    count_all = 0; ##counts how many items was recommended
+    for row1,row2 in zip(recommendations,Y_real):   #iterate through rows
+        for recommended,real in zip(row1,row2): #iterate trough cells in each columns
+            if(recommended==1): #see if it recommended a item
+                if(recommended==real): count_rights+=1    #see if the recommended item was rated 5
+                count_all+=1 
+    return count_rights/count_all
+
+
+
 from sklearn.metrics import accuracy_score
 def measure(y_test,pred):
     #Proportion of the users that voted 5 in all the recommendations
     score_user = accuracy_score(y_test,pred)
 
     #Proportion of how many recommendations had score 5
-    score_products = accuracy_score(   y_test.values.flatten()  ,  pred.flatten()     )
-
+    score_products = metric_right_recommends(pred,y_test.values)
     print(f'Proportion of how many recomendations had score 5:  {score_products}')
     print(f'Proportion of the users that voted 5 in all the recomendations:      {score_user}')
 
