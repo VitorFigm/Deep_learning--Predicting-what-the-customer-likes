@@ -2,9 +2,6 @@
 
 Using Amazon's review database, for each reviewer, i will randomly erase 5 products that costumer gave 5 stars, and the model will try to predict what products were those.
 
-## Recommendation System
-
-We could say that those products that it predicts are a recommendation that an e-commerce website is showing for its clients, then this AI would transform into a great recommendation system. This would be an awesome alternative for using algorithms that constantly needs to make costly calculation in an entire database for recommending the product (like Nearest Neighbors algorithm) or update the model and detect a trend. MLP neural network only needs the database once in its training, don’t need many computations for recommending a product to the user and can easily detect trend since it uses each one of the recommendations to learn and become better.
 
 # Results
 
